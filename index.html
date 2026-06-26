@@ -77,6 +77,9 @@
 
   /* Test */
   .q-meta{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px;margin-bottom:8px}
+  #qTimer{font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink)}
+  .timestat{margin-top:10px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;
+    display:inline-block;padding:4px 12px;border:1px solid var(--line);border-radius:999px;background:var(--bg2)}
   .qcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
   .qnum{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
   .qtext{font-size:18px;font-weight:700;margin:8px 0 18px;line-height:1.45}
@@ -190,17 +193,14 @@
     <!-- quiz running -->
     <div id="quizRun">
       <div class="controls">
-        <select id="qCountSel">
-          <option value="30">All 30 questions</option>
-          <option value="20">20 questions</option>
-          <option value="15">15 questions</option>
-          <option value="10">10 questions</option>
-        </select>
+        <select id="qCatSel"></select>
+        <select id="qCountSel"></select>
         <button class="btn primary" id="startBtn">Start test</button>
       </div>
       <div id="quizArea" style="display:none">
         <div class="q-meta">
           <span id="qProgress">Question 1 of 30</span>
+          <span id="qTimer">⏱ 00:00</span>
           <span id="qAnswered">0 answered</span>
         </div>
         <div class="bar" style="max-width:none;margin-bottom:16px"><i id="qBar"></i></div>
@@ -223,7 +223,7 @@
 
   <footer>
     Built from your “Studying for Intro to Business Procedures” notes · works offline · nothing leaves this device
-    <div class="version">v1.2 · build 2026-06-26 11:01 PDT</div>
+    <div class="version">v1.3 · build 2026-06-26 11:19 PDT</div>
   </footer>
 </div>
 
@@ -367,96 +367,192 @@ const CARDS = [
 ];
 
 const QUESTIONS = [
- {q:"What is the key difference between a memo and a letter?",
+ {cat:"Comm/Docs", q:"What is the key difference between a memo and a letter?",
   opts:["A memo is internal; a letter is external","A memo is external; a letter is internal","A memo is handwritten; a letter is typed","There is no difference"],
   a:0, why:"Memos = INTERNAL communication within an organization. Letters = EXTERNAL communication."},
- {q:"In block format, how are all the lines aligned?",
+ {cat:"Comm/Docs", q:"In block format, how are all the lines aligned?",
   opts:["Centered","Right-aligned","Left-aligned (flush left)","Indented first line"],
   a:2, why:"Block format = all text left-aligned, single-spaced paragraphs, double space between them, no indentation."},
- {q:"Which mail service is the FASTEST?",
+ {cat:"Comm/Docs", q:"What is the official written record of what was discussed and decided at a meeting?",
+  opts:["The agenda","The minutes","The memo","The itinerary"],
+  a:1, why:"Minutes are the official record (attendees, date, agenda, decisions, action items). The agenda is the list of topics planned beforehand."},
+ {cat:"Mail", q:"Which mail service is the FASTEST?",
   opts:["First-Class Mail","Priority Mail","Express Mail","Parcel Post"],
   a:2, why:"Speed ranking: Express (1 day) > Priority (1–3) > First-Class (1–5) > Parcel Post (2–8)."},
- {q:"You need to send a large, heavy, non-letter package as cheaply as possible. Which USPS service fits best?",
+ {cat:"Mail", q:"You need to send a large, heavy, non-letter package as cheaply as possible. Which USPS service fits best?",
   opts:["Express Mail","Parcel Post","Certified Mail","Registered Mail"],
   a:1, why:"Parcel Post is for large, heavy, non-letter packages — the cheapest option for heavy items (2–8 days)."},
- {q:"A small business wants LIMITED LIABILITY with PASS-THROUGH taxation. Which structure fits best?",
+ {cat:"Mail", q:"You must mail a legal document and need proof it was delivered (a signature). Which service?",
+  opts:["First-Class Mail","Certified Mail","Parcel Post","Express Mail"],
+  a:1, why:"Certified Mail provides proof of mailing and delivery confirmation (signature) — used for legal documents. Same speed as First-Class."},
+ {cat:"Mail", q:"Which USPS service offers MAXIMUM security and is used for valuables?",
+  opts:["Priority Mail","Registered Mail","First-Class Mail","Parcel Post"],
+  a:1, why:"Registered Mail is tracked at every step and insured — maximum security, used for valuables."},
+ {cat:"Ownership", q:"A small business wants LIMITED LIABILITY with PASS-THROUGH taxation. Which structure fits best?",
   opts:["Sole Proprietorship","General Partnership","LLC","C Corporation"],
   a:2, why:"An LLC gives limited liability protection while passing profits/losses through to owners' personal taxes."},
- {q:"Which statement is TRUE of a sole proprietorship?",
+ {cat:"Ownership", q:"Which statement is TRUE of a sole proprietorship?",
   opts:["It is a separate legal entity from its owner","The owner has unlimited personal liability","It can easily sell stock to raise capital","It faces double taxation"],
   a:1, why:"In a sole proprietorship the owner and business are legally one and the same — unlimited personal liability."},
- {q:"What is the main drawback of a C Corporation?",
+ {cat:"Ownership", q:"What is the main drawback of a C Corporation?",
   opts:["Unlimited personal liability","It cannot raise capital","Double taxation","Owner and business assets are the same"],
   a:2, why:"A C Corp pays corporate income tax, then shareholders pay tax on dividends — double taxation. An S Corp avoids this."},
- {q:"The balance sheet equation is:",
+ {cat:"Finance", q:"The balance sheet equation is:",
   opts:["Assets = Liabilities + Owner's Equity","Assets = Revenue − Expenses","Revenue = Assets + Liabilities","Net Income = Assets − Equity"],
   a:0, why:"Assets = Liabilities + Owner's Equity — the balance sheet always balances."},
- {q:"Net Income is calculated as:",
+ {cat:"Finance", q:"Net Income is calculated as:",
   opts:["Revenue − Cost of Goods Sold","Revenue − All Expenses","Assets − Liabilities","Current Assets − Current Liabilities"],
   a:1, why:"Net Income = Revenue − ALL Expenses (the bottom line). Revenue − COGS is Gross Profit."},
- {q:"Which three documents make up a 'three-way match' before paying a vendor?",
+ {cat:"Finance", q:"Which three documents make up a 'three-way match' before paying a vendor?",
   opts:["Invoice, receipt, check","Purchase Order, Receiving Report, Vendor Invoice","Budget, ledger, journal","Requisition, voucher, W-2"],
   a:1, why:"Three-way match = Purchase Order + Receiving Report + Vendor Invoice, all confirmed before authorizing payment."},
- {q:"A petty cash reconciliation shows receipts are short by $7. What is the correct action?",
+ {cat:"Finance", q:"A petty cash reconciliation shows receipts are short by $7. What is the correct action?",
   opts:["Ignore it since it's small","Record the $7 as a shortage (cash short/over) and replenish the fund","Take $7 from your own wallet quietly","Close the petty cash fund permanently"],
   a:1, why:"Mark the overage/shortage at period end, then replenish the imprest fund back to its original amount — keep the paper trail."},
- {q:"In an imprest petty cash system, after you spend money the fund is:",
+ {cat:"Finance", q:"In an imprest petty cash system, after you spend money the fund is:",
   opts:["Left at the lower balance","Replenished back to its original fixed amount","Doubled for next month","Converted to a checking account"],
   a:1, why:"An imprest system keeps a FIXED amount — you replenish exactly what was spent to return to the original total."},
- {q:"What does a router do (vs. a modem)?",
-  opts:["Connects your home to the internet via an ISP","Connects devices within a local network (LAN)","Stores backup files","Scans documents into text"],
-  a:1, why:"A router connects devices to each other within a LAN; a MODEM connects the home/office to the internet via an ISP."},
- {q:"In a database table, a primary key must:",
-  opts:["Be unique and cannot be null","Always be null","Link to many other tables","Contain only text"],
-  a:0, why:"A primary key uniquely identifies each record — it cannot be null and has no duplicates. Foreign keys link tables and can be null."},
- {q:"Which file format best preserves layout and fonts across all devices?",
-  opts:[".TXT",".DOCX",".PDF",".CSV"],
-  a:2, why:"PDF preserves layout and embeds fonts so it looks identical everywhere — best for a final, fixed document."},
- {q:"Your printer shows repeated paper jams. What is the FIRST troubleshooting step?",
-  opts:["Replace every internal module preemptively","Clear the paper path (and remove any torn scraps)","Buy a new printer","Call the manufacturer for a refund"],
-  a:1, why:"Start with the least invasive fix: clear the paper path first; torn scraps under rollers can trigger false jam sensors."},
- {q:"Which statement about EULAs (End-User License Agreements) is most accurate?",
-  opts:["They are suggestions, not enforceable","They are legally enforceable contracts","They only apply to free software","They expire after one use"],
-  a:1, why:"A EULA is a legally enforceable contract between the software publisher and the user — not just a suggestion."},
- {q:"Which best describes a tickler file?",
-  opts:["A list of employee complaints","A date-based reminder system (31 daily + 12 monthly folders)","A backup of the company server","A type of business letter"],
-  a:1, why:"A tickler file uses 31 daily + 12 monthly folders to 'tickle' your memory about upcoming deadlines."},
- {q:"When purging records, what should you do FIRST?",
-  opts:["Shred everything immediately","Check the retention schedule and confirm no legal hold applies","Email customers for permission","Archive everything to the cloud"],
-  a:1, why:"Always verify the retention schedule and that no litigation/legal hold applies before destroying any records."},
- {q:"When a custom policy says keep records 3 years but the default schedule says 7 years, you keep them for:",
-  opts:["3 years","7 years (the longest applicable period)","5 years (the average)","Forever"],
-  a:1, why:"Default to the LONGEST applicable retention period — so 7 years here."},
- {q:"Confidentiality in an office primarily means:",
-  opts:["Sharing information freely with coworkers","Protecting sensitive information from unauthorized access","Keeping the office quiet","Backing up files daily"],
-  a:1, why:"Confidentiality = protecting sensitive information from unauthorized access (lock screens, secure docs, follow privacy policy)."},
- {q:"The 4 functions of management (POLC) are:",
-  opts:["Plan, Order, Lead, Calculate","Planning, Organizing, Leading, Controlling","Produce, Operate, Launch, Close","People, Operations, Logistics, Capital"],
-  a:1, why:"POLC = Planning, Organizing, Leading/Directing, Controlling."},
- {q:"A 'hands-off' leader who gives skilled employees autonomy with minimal supervision uses which style?",
-  opts:["Autocratic","Democratic","Laissez-faire","Transactional"],
-  a:2, why:"Laissez-faire (delegative) leadership is hands-off — best with highly skilled, self-motivated teams."},
- {q:"On an organizational chart, a DASHED line usually represents:",
-  opts:["The CEO","A direct chain of command","A functional/secondary reporting relationship","An empty position"],
-  a:2, why:"Solid lines = direct-line authority; dashed lines = functional or secondary relationships (e.g., matrix structures)."},
- {q:"Sarbanes-Oxley (SOX) primarily aims to:",
-  opts:["Protect investors through corporate financial accountability","Set the federal minimum wage","Protect employees with disabilities","Regulate the mail system"],
-  a:0, why:"SOX requires CEOs/CFOs to approve financials, mandates audits, and protects whistleblowers — all to protect investors."},
- {q:"The ADA requires employers to provide accommodations when they have at least how many employees?",
-  opts:["5","10","15","50"],
-  a:2, why:"The ADA generally applies to employers with 15 or more employees."},
- {q:"What does ergonomics fix in a workstation showing wrist pain, a low monitor, and dangling feet?",
-  opts:["Raise the monitor to eye level, support wrists neutral, get feet flat on the floor","Buy a faster computer","Lower the lighting","Add a second monitor"],
-  a:0, why:"Ergonomics: monitor top at/just below eye level, wrists in line with forearms, feet flat — everything supported and straight."},
- {q:"What is the FIRST step when handling a difficult/upset customer?",
-  opts:["Offer a refund immediately","Paraphrase their concern to confirm understanding (active listening)","Transfer them to a manager","End the call politely"],
-  a:1, why:"Active listening first — paraphrase the customer's concern to confirm you understand before solving."},
- {q:"Which document authorizes payment to a vendor AFTER confirming goods/services were received?",
+ {cat:"Finance", q:"Which INTERNAL document requests permission to buy something BEFORE a Purchase Order is issued?",
+  opts:["Voucher","Purchase requisition","Invoice","Receiving report"],
+  a:1, why:"A purchase requisition is the internal request that goes to purchasing for approval before a PO is created."},
+ {cat:"Finance", q:"Which document authorizes payment to a vendor AFTER confirming goods/services were received?",
   opts:["Purchase requisition","Voucher","Agenda","Journal entry"],
   a:1, why:"A voucher authorizes payment to a vendor once goods/services are confirmed received."},
- {q:"Cartels and trusts both create monopoly power. How do they differ?",
+ {cat:"Technology", q:"What does a router do (vs. a modem)?",
+  opts:["Connects your home to the internet via an ISP","Connects devices within a local network (LAN)","Stores backup files","Scans documents into text"],
+  a:1, why:"A router connects devices to each other within a LAN; a MODEM connects the home/office to the internet via an ISP."},
+ {cat:"Technology", q:"In a database table, a primary key must:",
+  opts:["Be unique and cannot be null","Always be null","Link to many other tables","Contain only text"],
+  a:0, why:"A primary key uniquely identifies each record — it cannot be null and has no duplicates. Foreign keys link tables and can be null."},
+ {cat:"Technology", q:"Which file format best preserves layout and fonts across all devices?",
+  opts:[".TXT",".DOCX",".PDF",".CSV"],
+  a:2, why:"PDF preserves layout and embeds fonts so it looks identical everywhere — best for a final, fixed document."},
+ {cat:"Technology", q:"Which file format supports TRANSPARENT backgrounds and is best for logos and graphics?",
+  opts:[".JPG",".PNG",".CSV",".TXT"],
+  a:1, why:"PNG supports transparency and sharp edges — ideal for logos/graphics. JPG is compressed, best for photos."},
+ {cat:"Technology", q:"In Excel, which function key opens the 'Save As' dialog box?",
+  opts:["F2","F5","F9","F12"],
+  a:3, why:"F12 = Save As. (F2 enters the cell, F4 toggles absolute reference, F7 is spellcheck.)"},
+ {cat:"Technology", q:"In Excel, which function key changes a cell reference to ABSOLUTE (e.g., $E$2)?",
+  opts:["F2","F4","F7","F11"],
+  a:1, why:"F4 toggles absolute reference ($). Absolute references stay fixed when you copy/drag a formula."},
+ {cat:"Technology", q:"In a SQL SELECT query, which keyword FILTERS rows to those meeting a condition?",
+  opts:["FROM","ORDER BY","WHERE","SELECT"],
+  a:2, why:"WHERE filters rows by criteria. SELECT picks columns, FROM names the table, ORDER BY sorts the results."},
+ {cat:"Operations", q:"Your printer shows repeated paper jams. What is the FIRST troubleshooting step?",
+  opts:["Replace every internal module preemptively","Clear the paper path (and remove any torn scraps)","Buy a new printer","Call the manufacturer for a refund"],
+  a:1, why:"Start with the least invasive fix: clear the paper path first; torn scraps under rollers can trigger false jam sensors."},
+ {cat:"Operations", q:"For print/reprographics, at what minimum resolution should images generally be submitted?",
+  opts:["72 DPI","150 DPI","300 DPI","30 DPI"],
+  a:2, why:"Submit images at 300 DPI or higher for print; CMYK is the standard color mode for printing."},
+ {cat:"Operations", q:"What does ergonomics fix in a workstation showing wrist pain, a low monitor, and dangling feet?",
+  opts:["Raise the monitor to eye level, support wrists neutral, get feet flat on the floor","Buy a faster computer","Lower the lighting","Add a second monitor"],
+  a:0, why:"Ergonomics: monitor top at/just below eye level, wrists in line with forearms, feet flat — everything supported and straight."},
+ {cat:"Operations", q:"What is the FIRST step when handling a difficult/upset customer?",
+  opts:["Offer a refund immediately","Paraphrase their concern to confirm understanding (active listening)","Transfer them to a manager","End the call politely"],
+  a:1, why:"Active listening first — paraphrase the customer's concern to confirm you understand before solving."},
+ {cat:"Records", q:"Which best describes a tickler file?",
+  opts:["A list of employee complaints","A date-based reminder system (31 daily + 12 monthly folders)","A backup of the company server","A type of business letter"],
+  a:1, why:"A tickler file uses 31 daily + 12 monthly folders to 'tickle' your memory about upcoming deadlines."},
+ {cat:"Records", q:"When purging records, what should you do FIRST?",
+  opts:["Shred everything immediately","Check the retention schedule and confirm no legal hold applies","Email customers for permission","Archive everything to the cloud"],
+  a:1, why:"Always verify the retention schedule and that no litigation/legal hold applies before destroying any records."},
+ {cat:"Records", q:"When a custom policy says keep records 3 years but the default schedule says 7 years, you keep them for:",
+  opts:["3 years","7 years (the longest applicable period)","5 years (the average)","Forever"],
+  a:1, why:"Default to the LONGEST applicable retention period — so 7 years here."},
+ {cat:"Records", q:"Under ARMA rules, how is the business name 'The Coffee Shop' indexed (filed)?",
+  opts:["Under T for 'The'","Under C — 'The' is dropped (or moved to the end)","Under S for 'Shop'","It cannot be filed alphabetically"],
+  a:1, why:"Businesses are filed as written, but a leading 'The' is omitted (or filed last) — so it indexes under 'Coffee Shop'."},
+ {cat:"Records", q:"What is the FIRST of the five steps of filing?",
+  opts:["Coding","Sorting","Inspecting","Storing"],
+  a:2, why:"Order: Inspecting → Indexing → Coding → Sorting → Storing. Inspecting checks the doc is released/ready to file."},
+ {cat:"Ethics/Law", q:"Which statement about EULAs (End-User License Agreements) is most accurate?",
+  opts:["They are suggestions, not enforceable","They are legally enforceable contracts","They only apply to free software","They expire after one use"],
+  a:1, why:"A EULA is a legally enforceable contract between the software publisher and the user — not just a suggestion."},
+ {cat:"Ethics/Law", q:"Confidentiality in an office primarily means:",
+  opts:["Sharing information freely with coworkers","Protecting sensitive information from unauthorized access","Keeping the office quiet","Backing up files daily"],
+  a:1, why:"Confidentiality = protecting sensitive information from unauthorized access (lock screens, secure docs, follow privacy policy)."},
+ {cat:"Ethics/Law", q:"Sarbanes-Oxley (SOX) primarily aims to:",
+  opts:["Protect investors through corporate financial accountability","Set the federal minimum wage","Protect employees with disabilities","Regulate the mail system"],
+  a:0, why:"SOX requires CEOs/CFOs to approve financials, mandates audits, and protects whistleblowers — all to protect investors."},
+ {cat:"Ethics/Law", q:"The ADA requires employers to provide accommodations when they have at least how many employees?",
+  opts:["5","10","15","50"],
+  a:2, why:"The ADA generally applies to employers with 15 or more employees."},
+ {cat:"Ethics/Law", q:"The FLSA (Fair Labor Standards Act) mandates overtime pay at what rate, and after how many hours?",
+  opts:["2× pay after 35 hours/week","1.5× pay after 40 hours/week","1.25× pay after 45 hours/week","Same rate, no overtime required"],
+  a:1, why:"FLSA mandates 1.5× the regular rate for hours worked beyond 40 in a week, plus minimum wage and recordkeeping rules."},
+ {cat:"Ethics/Law", q:"HIPAA protects which type of information from disclosure without consent?",
+  opts:["Financial records","Health information","Employee performance reviews","Trade secrets"],
+  a:1, why:"HIPAA protects specific health information from being disclosed without patient consent."},
+ {cat:"Management", q:"The 4 functions of management (POLC) are:",
+  opts:["Plan, Order, Lead, Calculate","Planning, Organizing, Leading, Controlling","Produce, Operate, Launch, Close","People, Operations, Logistics, Capital"],
+  a:1, why:"POLC = Planning, Organizing, Leading/Directing, Controlling."},
+ {cat:"Management", q:"A 'hands-off' leader who gives skilled employees autonomy with minimal supervision uses which style?",
+  opts:["Autocratic","Democratic","Laissez-faire","Transactional"],
+  a:2, why:"Laissez-faire (delegative) leadership is hands-off — best with highly skilled, self-motivated teams."},
+ {cat:"Management", q:"On an organizational chart, a DASHED line usually represents:",
+  opts:["The CEO","A direct chain of command","A functional/secondary reporting relationship","An empty position"],
+  a:2, why:"Solid lines = direct-line authority; dashed lines = functional or secondary relationships (e.g., matrix structures)."},
+ {cat:"Management", q:"What does the SMART in SMART goals stand for?",
+  opts:["Simple, Modern, Accurate, Real, Tested","Specific, Measurable, Achievable, Relevant, Time-bound","Strategic, Managed, Audited, Reviewed, Tracked","Smart, Motivated, Active, Ready, Tough"],
+  a:1, why:"SMART = Specific, Measurable, Achievable, Relevant, Time-bound."},
+ {cat:"Management", q:"On the Eisenhower Matrix, a task that is URGENT but NOT important should be:",
+  opts:["Done first","Scheduled for later","Delegated","Eliminated"],
+  a:2, why:"Urgent + Important = Do first; Important + not urgent = Schedule; Urgent + not important = Delegate; Neither = Eliminate."},
+ {cat:"Management", q:"From highest to lowest, the three levels of management are:",
+  opts:["Line → Middle → Executive","Executive/Top → Middle → Line/Supervisory","Middle → Executive → Line","Supervisory → Executive → Middle"],
+  a:1, why:"Top/Executive (vision/strategy) → Middle (implements strategy) → Line/Supervisory (day-to-day operations)."},
+ {cat:"Economics", q:"Cartels and trusts both create monopoly power. How do they differ?",
   opts:["A cartel merges companies; a trust keeps them separate","In a cartel companies keep autonomy and can leave easily; a trust merges them under trustees and is hard to leave","They are the same thing","A trust is legal; a cartel is always illegal"],
   a:1, why:"Cartel = colluding but autonomous companies (easy to leave). Trust = companies merged under trustees (hard to leave)."},
+ {cat:"Economics", q:"GDP (Gross Domestic Product) measures:",
+  opts:["A company's yearly profit","The total market value of all goods and services produced in a country in a period","The national unemployment rate","The amount of money the government prints"],
+  a:1, why:"GDP = total market value of all goods/services produced within a country in a given time period."},
+ {cat:"Economics", q:"In which economic system does the GOVERNMENT own the means of production?",
+  opts:["Capitalism","Socialism","Free market","Monopolistic competition"],
+  a:1, why:"Socialism = government owns the means of production. Capitalism = private individuals own most businesses."},
+ {cat:"Economics", q:"Capitalism is best defined as an economic system where:",
+  opts:["The state directs all production","Private individuals own and operate most businesses","No one is allowed to own property","Prices are fixed by the government"],
+  a:1, why:"Capitalism = private individuals own and operate the majority of businesses that provide goods/services."},
+ {cat:"Career", q:"How long should an elevator pitch last?",
+  opts:["5–10 seconds","30–60 seconds","3–5 minutes","10 minutes"],
+  a:1, why:"An elevator pitch is a 30–60 second concise, persuasive overview designed to generate interest."},
+ {cat:"Career", q:"What is the standard professional practice to do AFTER a job interview?",
+  opts:["Call the company daily until you hear back","Send a follow-up (thank-you) letter","Post about it on social media","Nothing — just wait"],
+  a:1, why:"Sending a follow-up letter thanking the interviewer is standard professional etiquette."},
+ {cat:"Career", q:"When resigning from a position, what is the typical amount of notice given?",
+  opts:["Same day","One week","Two weeks","Three months"],
+  a:2, why:"Standard resignation practice: give about two weeks' notice, submit a formal letter, and complete transition tasks professionally."},
+ {cat:"Math", q:"A store's monthly sales rose from 200 units to 250 units. What is the percent change?",
+  opts:["20%","25%","50%","80%"],
+  a:1, why:"Percent change = (New − Old) ÷ Old = (250 − 200) ÷ 200 = 50 ÷ 200 = 25%."},
+ {cat:"Math", q:"An employee works 45 hours at $20/hour with overtime (1.5×) after 40 hours. What is gross pay?",
+  opts:["$900","$950","$1,000","$1,350"],
+  a:1, why:"Regular: 40 × $20 = $800. Overtime: 5 × ($20 × 1.5 = $30) = $150. Total = $950."},
+ {cat:"Math", q:"An item priced at $120 is marked 25% off. What is the sale price?",
+  opts:["$30","$90","$95","$96"],
+  a:1, why:"Sale price = Original × (1 − discount) = $120 × 0.75 = $90."},
+ {cat:"Math", q:"Fixed costs are $1,000, selling price is $25/unit, and variable cost is $15/unit. What is the break-even point?",
+  opts:["40 units","100 units","400 units","1,000 units"],
+  a:1, why:"Break-even = Fixed Costs ÷ (Price − Variable Cost) = 1,000 ÷ (25 − 15) = 1,000 ÷ 10 = 100 units."},
+ {cat:"Math", q:"Net income is $20,000 and revenue is $100,000. What is the profit margin?",
+  opts:["5%","20%","80%","200%"],
+  a:1, why:"Profit Margin = (Net Income ÷ Revenue) × 100 = (20,000 ÷ 100,000) × 100 = 20%."},
+ {cat:"Math", q:"Revenue is $50,000 and Cost of Goods Sold is $30,000. What is the gross profit?",
+  opts:["$15,000","$20,000","$30,000","$80,000"],
+  a:1, why:"Gross Profit = Revenue − COGS = $50,000 − $30,000 = $20,000."},
+ {cat:"Math", q:"Current assets are $40,000 and current liabilities are $25,000. What is the working capital?",
+  opts:["$15,000","$25,000","$40,000","$65,000"],
+  a:0, why:"Working Capital = Current Assets − Current Liabilities = $40,000 − $25,000 = $15,000."},
+ {cat:"Math", q:"You invest $10,000 and it returns $12,000. What is the ROI?",
+  opts:["12%","20%","83%","120%"],
+  a:1, why:"ROI = (Gain − Cost) ÷ Cost × 100 = (12,000 − 10,000) ÷ 10,000 × 100 = 20%."},
+ {cat:"Math", q:"An employee works 32 hours at $18/hour (no overtime). What is the pay?",
+  opts:["$512","$576","$640","$320"],
+  a:1, why:"Hourly Pay = Hours × Rate = 32 × $18 = $576."},
+ {cat:"Math", q:"Revenue is $80,000 and total expenses are $55,000. What is net income?",
+  opts:["$25,000","$35,000","$55,000","$135,000"],
+  a:0, why:"Net Income = Revenue − All Expenses = $80,000 − $55,000 = $25,000."},
 ];
 
 /* ============ FLASHCARDS LOGIC ============ */
@@ -538,25 +634,55 @@ $$('.tab').forEach(t=>t.onclick=()=>{
 });
 
 /* ============ TEST LOGIC ============ */
-let quiz=[], qi=0, answers=[];
+let quiz=[], qi=0, answers=[], timerInt=null, startMs=0, elapsedMs=0;
 function shuffleArr(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
-$('#startBtn').onclick=()=>{
-  const n=parseInt($('#qCountSel').value,10);
-  let pool=shuffleArr(QUESTIONS).slice(0,n);
-  // shuffle options within each question, track correct index
-  quiz=pool.map(item=>{
-    const correctText=item.opts[item.a];
-    const opts=shuffleArr(item.opts);
-    return {q:item.q, opts, a:opts.indexOf(correctText), why:item.why};
-  });
+/* category + count selectors */
+function poolForCat(){
+  const c=$('#qCatSel').value;
+  return (c&&c!=='__all')?QUESTIONS.filter(q=>q.cat===c):QUESTIONS.slice();
+}
+function buildQCatSel(){
+  const cats=[...new Set(QUESTIONS.map(q=>q.cat))];
+  $('#qCatSel').innerHTML='<option value="__all">All topics ('+QUESTIONS.length+')</option>'+
+    cats.map(c=>{const n=QUESTIONS.filter(q=>q.cat===c).length;return '<option value="'+c+'">'+c+' ('+n+')</option>';}).join('');
+}
+function buildQCountSel(){
+  const total=poolForCat().length;
+  const sizes=[10,15,20,30,40,50].filter(n=>n<total);
+  $('#qCountSel').innerHTML='<option value="0">All '+total+' questions</option>'+
+    sizes.map(n=>'<option value="'+n+'">'+n+' questions</option>').join('');
+}
+$('#qCatSel').onchange=buildQCountSel;
+
+/* timer */
+function fmt(ms){const s=Math.max(0,Math.floor(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function startTimer(){clearInterval(timerInt);startMs=Date.now();$('#qTimer').textContent='⏱ 00:00';
+  timerInt=setInterval(()=>{$('#qTimer').textContent='⏱ '+fmt(Date.now()-startMs);},1000);}
+function stopTimer(){clearInterval(timerInt);elapsedMs=Date.now()-startMs;}
+
+/* build + start (baseList = array of question objects {cat,q,opts,a,why}) */
+function makeQuizItem(base){
+  const correctText=base.opts[base.a];
+  const opts=shuffleArr(base.opts);
+  return {cat:base.cat, q:base.q, opts, a:opts.indexOf(correctText), why:base.why};
+}
+function startQuiz(baseList){
+  quiz=shuffleArr(baseList).map(makeQuizItem);
   answers=new Array(quiz.length).fill(null);
   qi=0;
   $('#quizArea').style.display='block';
   $('#quizResults').style.display='none';
-  $('.controls',$('#quizRun')); // noop
   $('#startBtn').textContent='Restart test';
+  startTimer();
   buildDots(); renderQ();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+$('#startBtn').onclick=()=>{
+  let pool=poolForCat();
+  const n=parseInt($('#qCountSel').value,10)||0;
+  if(n>0) pool=shuffleArr(pool).slice(0,n);
+  startQuiz(pool);
 };
 
 function buildDots(){
@@ -574,7 +700,7 @@ function renderQ(){
   $('#qProgress').textContent='Question '+(qi+1)+' of '+quiz.length;
   $('#qAnswered').textContent=answers.filter(a=>a!==null).length+' answered';
   $('#qBar').style.width=((qi+1)/quiz.length*100)+'%';
-  $('#qNum').textContent='Q'+(qi+1);
+  $('#qNum').textContent='Q'+(qi+1)+' · '+item.cat;
   $('#qText').textContent=item.q;
   const wrap=$('#qOpts'); wrap.innerHTML='';
   const keys=['A','B','C','D','E'];
@@ -596,6 +722,7 @@ $('#qNext').onclick=()=>{
   // finishing
   const unanswered=answers.filter(a=>a===null).length;
   if(unanswered>0 && !confirm(unanswered+' question(s) are unanswered and will be marked wrong. Submit anyway?'))return;
+  stopTimer();
   showResults();
 };
 
@@ -620,9 +747,10 @@ function showResults(){
   html+='<div class="ring" style="--p:'+pct+'"><div><span class="pct">'+pct+'%</span><span class="frac">'+correct+' / '+total+' correct</span></div></div>';
   html+='<div class="grade">Grade: '+g+'</div>';
   html+='<p class="msg">'+msg+'</p>';
+  html+='<div class="timestat">⏱ Total '+fmt(elapsedMs)+' · avg '+fmt(Math.round(elapsedMs/total))+' / question</div>';
   html+='<div class="score-actions">';
-  html+='<button class="btn primary" id="retakeBtn">↻ Retake test</button>';
-  if(misses.length)html+='<button class="btn" id="studyMissBtn">⭐ Star &amp; study the '+misses.length+' missed</button>';
+  html+='<button class="btn primary" id="retakeBtn">↻ New test</button>';
+  if(misses.length)html+='<button class="btn" id="missAgainBtn">🔁 Retake '+misses.length+' missed</button>';
   html+='</div></div>';
 
   // Missed section
@@ -656,19 +784,16 @@ function showResults(){
   window.scrollTo({top:0,behavior:'smooth'});
 
   $('#retakeBtn').onclick=()=>$('#startBtn').click();
-  const sm=$('#studyMissBtn');
-  if(sm)sm.onclick=()=>{
-    // map missed questions back to related flashcards is hard; instead star nothing automatic.
-    // Switch to flashcards and inform user.
-    quiz.forEach((item,i)=>{}); // placeholder
-    document.querySelector('.tab[data-view="cards"]').click();
-    alert('Switched to Flashcards. Use the category filter to drill the topics you missed, then ⭐ star tough cards.');
-  };
+  const ma=$('#missAgainBtn');
+  // Retake ONLY the missed questions (re-shuffled), looping until you get them all right.
+  if(ma)ma.onclick=()=>startQuiz(misses.map(x=>x.item));
 }
 
 /* init */
 buildCatFilter();
 loadDeck(false);
+buildQCatSel();
+buildQCountSel();
 </script>
 </body>
 </html>
