@@ -73,6 +73,24 @@ Rules that keep the app working:
   `data-extra.js`. Don't mix them.
 - After editing, sanity-check with `node --check data-notes.js` (or `data-extra.js`).
 
+## The two content sets — keep them distinct
+
+This is the distinction that matters most; the user has explicitly confirmed it.
+
+- **Your Notes (`data-notes.js`, main page)** — mirrors the user's Google Doc, *including* the
+  new material they've added to it over time (e.g., dress codes, Kirkpatrick, SBI, chart
+  selection). When the doc grows, the new content lands **here**.
+- **Additional Learning (`data-extra.js`, `additional.html`)** — supplementary material that
+  goes **deeper on the same themes**, researched by you. It is **NOT** a copy of the notes and
+  **NOT** sourced from the doc. Think "next layer down": if notes introduce the Kirkpatrick
+  model, Additional Learning adds its four levels, plus ADDIE, 360-feedback, etc.
+
+So: doc updates → notes set. "Deepen the additional learning" → extra set. **Do not mirror new
+notes into Additional Learning**, and don't pull Additional Learning content from the doc. If a
+concept legitimately appears in both (the user sometimes transcribes things into their doc),
+that's fine — it just means it now belongs to the notes set too; you don't have to remove it
+from Additional Learning.
+
 ## Common tasks
 
 ### Add or edit flashcards / questions
@@ -181,8 +199,9 @@ Notes on the host (Cloudflare Pages static hosting):
   benefit. Don't fork logic into a page.
 - **History is per-page and per-device** (localStorage). Don't expect it to sync across
   devices or pages.
-- **Additional Learning ≠ the doc.** Keep it clearly labeled as supplementary. If you add to
-  it, it's your researched material, not the user's notes — verify facts against real sources
-  (the user has noted some study sites get things wrong).
+- **Additional Learning ≠ the doc, and ≠ the notes set.** Keep it clearly labeled as
+  supplementary. It deepens the same themes but is never a copy of the notes — see
+  "The two content sets" above. Anything you add is your researched material, so verify facts
+  against real sources (the user has noted some study sites get things wrong).
 - **Always verify in the browser and confirm the live version stamp** before telling the user
   it's done — they rely on that stamp to know the latest is deployed.
