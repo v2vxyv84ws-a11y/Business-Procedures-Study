@@ -157,3 +157,8 @@
   .back-link{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;font-weight:600;
     margin-bottom:10px;transition:.15s}
   .back-link:hover{color:var(--accent)}
+
+  /* link to the printable study-sheet doc */
+  .sheet-links{max-width:660px;margin:12px auto 0;text-align:center;font-size:13px;color:var(--muted)}
+  .sheet-links a{color:var(--accent);font-weight:700;text-decoration:none}
+  .sheet-links a:hover{text-decoration:underline}
