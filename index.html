@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intro to Business Procedures — Study</title>
+<style>
+  :root{
+    --bg:#0f1420; --bg2:#151c2c; --card:#1b2438; --card2:#222d45;
+    --ink:#eef2fb; --muted:#9aa7c4; --line:#2c3855;
+    --accent:#5b8cff; --accent2:#7c5cff;
+    --good:#34d399; --bad:#fb7185; --warn:#fbbf24;
+    --shadow:0 10px 40px rgba(0,0,0,.45);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,#1d2740 0,var(--bg) 55%),var(--bg);
+    color:var(--ink); -webkit-font-smoothing:antialiased; line-height:1.5;
+    min-height:100%; padding-bottom:60px;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:28px 20px}
+  header.top{text-align:center;margin-bottom:8px}
+  header.top h1{font-size:26px;font-weight:800;letter-spacing:-.4px}
+  header.top h1 .em{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  header.top p{color:var(--muted);font-size:14px;margin-top:4px}
+
+  /* Tabs */
+  .tabs{display:flex;gap:6px;justify-content:center;margin:22px 0;background:var(--bg2);
+        border:1px solid var(--line);padding:6px;border-radius:999px;width:max-content;margin-left:auto;margin-right:auto}
+  .tab{border:0;background:transparent;color:var(--muted);font-weight:600;font-size:14px;
+       padding:9px 20px;border-radius:999px;cursor:pointer;transition:.2s}
+  .tab.active{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 16px rgba(91,140,255,.35)}
+  .tab:hover:not(.active){color:var(--ink)}
+
+  .view{display:none;animation:fade .3s ease}
+  .view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* Controls row */
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin-bottom:18px}
+  select,.btn{font-family:inherit;font-size:14px;font-weight:600;border-radius:12px;cursor:pointer;border:1px solid var(--line)}
+  select{background:var(--card);color:var(--ink);padding:10px 14px}
+  .btn{background:var(--card);color:var(--ink);padding:10px 16px;transition:.15s}
+  .btn:hover{background:var(--card2);transform:translateY(-1px)}
+  .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));border:0;color:#fff}
+  .btn.primary:hover{filter:brightness(1.08)}
+  .btn.ghost{background:transparent}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+  /* Flashcards */
+  .progress{display:flex;align-items:center;gap:12px;justify-content:center;color:var(--muted);font-size:13px;margin-bottom:14px}
+  .bar{flex:1;max-width:320px;height:7px;background:var(--bg2);border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0;transition:width .3s}
+
+  .flashcard{perspective:1600px;margin:0 auto;max-width:620px}
+  .fc-inner{position:relative;width:100%;min-height:320px;transition:transform .55s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d;cursor:pointer}
+  .fc-inner.flipped{transform:rotateY(180deg)}
+  .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+        border-radius:var(--radius);padding:34px;display:flex;flex-direction:column;justify-content:center;
+        border:1px solid var(--line);box-shadow:var(--shadow)}
+  .face .cat{position:absolute;top:18px;left:22px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+  .face .hint{position:absolute;bottom:16px;left:0;right:0;text-align:center;font-size:12px;color:var(--muted)}
+  .front{background:linear-gradient(160deg,var(--card),var(--bg2))}
+  .front .term{font-size:27px;font-weight:800;text-align:center;letter-spacing:-.3px}
+  .back{background:linear-gradient(160deg,#1a2742,#161d2e);transform:rotateY(180deg)}
+  .back .term{font-size:17px;font-weight:800;color:var(--accent);margin-bottom:10px;text-align:center}
+  .back .def{font-size:16px;color:var(--ink);text-align:center}
+
+  .fc-actions{display:flex;gap:10px;justify-content:center;margin-top:20px}
+  .pill{display:inline-flex;align-items:center;gap:6px}
+  .star{color:var(--warn)}
+
+  /* Test */
+  .q-meta{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px;margin-bottom:8px}
+  .qcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+  .qnum{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+  .qtext{font-size:18px;font-weight:700;margin:8px 0 18px;line-height:1.45}
+  .opts{display:flex;flex-direction:column;gap:10px}
+  .opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;background:var(--bg2);
+       border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;color:var(--ink);cursor:pointer;
+       font-size:15px;font-weight:500;transition:.15s;font-family:inherit}
+  .opt:hover{border-color:var(--accent);background:var(--card2)}
+  .opt .key{flex:none;width:24px;height:24px;border-radius:7px;background:var(--card);border:1px solid var(--line);
+            display:grid;place-items:center;font-size:13px;font-weight:800;color:var(--muted)}
+  .opt.selected{border-color:var(--accent);background:rgba(91,140,255,.12)}
+  .opt.selected .key{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .opt.correct{border-color:var(--good);background:rgba(52,211,153,.13)}
+  .opt.correct .key{background:var(--good);color:#06281c;border-color:var(--good)}
+  .opt.wrong{border-color:var(--bad);background:rgba(251,113,133,.13)}
+  .opt.wrong .key{background:var(--bad);color:#3a0c14;border-color:var(--bad)}
+  .opt.locked{cursor:default}
+  .nav{display:flex;justify-content:space-between;gap:10px;margin-top:18px}
+
+  .dots{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:18px}
+  .dot{width:13px;height:13px;border-radius:50%;background:var(--line);border:0;cursor:pointer;transition:.15s}
+  .dot.answered{background:var(--accent)}
+  .dot.current{outline:2px solid var(--ink);outline-offset:2px}
+
+  /* Results */
+  .score-hero{text-align:center;padding:30px 20px;background:linear-gradient(160deg,var(--card),var(--bg2));
+              border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:20px}
+  .ring{--p:0;width:150px;height:150px;border-radius:50%;margin:0 auto 14px;display:grid;place-items:center;
+        background:conic-gradient(var(--accent) calc(var(--p)*1%),var(--bg2) 0)}
+  .ring > div{width:120px;height:120px;border-radius:50%;background:var(--card);display:grid;place-items:center;flex-direction:column}
+  .ring .pct{font-size:34px;font-weight:800}
+  .ring .frac{font-size:13px;color:var(--muted)}
+  .grade{font-size:20px;font-weight:800;margin-top:4px}
+  .score-hero p.msg{color:var(--muted);margin-top:6px}
+  .score-actions{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+
+  .review-h{font-size:15px;font-weight:800;margin:24px 0 12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .rev{background:var(--card);border:1px solid var(--line);border-left-width:4px;border-radius:12px;padding:16px 18px;margin-bottom:12px}
+  .rev.miss{border-left-color:var(--bad)}
+  .rev.hit{border-left-color:var(--good)}
+  .rev .rq{font-weight:700;margin-bottom:10px}
+  .rev .line{font-size:14px;margin:3px 0;display:flex;gap:8px}
+  .rev .tag{font-weight:700}
+  .rev .tag.you{color:var(--bad)}
+  .rev .tag.ans{color:var(--good)}
+  .rev .why{font-size:13px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+
+  .empty{text-align:center;color:var(--muted);padding:40px}
+  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:40px}
+  @media(max-width:560px){
+    .face{padding:26px}.front .term{font-size:23px}.qtext{font-size:16px}
+    header.top h1{font-size:21px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Intro to Business Procedures — <span class="em">Study Lab</span></h1>
+    <p>FBLA cram set · flashcards + a scored practice test that shows what you missed</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-view="cards">🃏 Flashcards</button>
+    <button class="tab" data-view="test">📝 Test</button>
+  </div>
+
+  <!-- FLASHCARDS -->
+  <section class="view active" id="view-cards">
+    <div class="controls">
+      <select id="catFilter"></select>
+      <button class="btn" id="shuffleBtn">🔀 Shuffle</button>
+      <button class="btn ghost" id="starredBtn">⭐ Starred only</button>
+      <button class="btn ghost" id="resetCards">↺ Reset</button>
+    </div>
+    <div class="progress">
+      <span id="cardCount">1 / 1</span>
+      <div class="bar"><i id="cardBar"></i></div>
+      <span id="starCount">0 ⭐</span>
+    </div>
+
+    <div class="flashcard">
+      <div class="fc-inner" id="fcInner">
+        <div class="face front">
+          <span class="cat" id="fcCat"></span>
+          <div class="term" id="fcTerm"></div>
+          <span class="hint">click / press <b>Space</b> to flip</span>
+        </div>
+        <div class="face back">
+          <span class="cat">Definition</span>
+          <div class="term" id="fcTermBack"></div>
+          <div class="def" id="fcDef"></div>
+          <span class="hint">click to flip back</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="fc-actions">
+      <button class="btn" id="prevCard">← Prev</button>
+      <button class="btn" id="starCard"><span class="star">☆</span> Star</button>
+      <button class="btn primary" id="nextCard">Next →</button>
+    </div>
+    <div class="progress" style="margin-top:14px"><small style="color:var(--muted)">Tip: ← → arrows to move, ↑ to star</small></div>
+  </section>
+
+  <!-- TEST -->
+  <section class="view" id="view-test">
+    <!-- quiz running -->
+    <div id="quizRun">
+      <div class="controls">
+        <select id="qCountSel">
+          <option value="30">All 30 questions</option>
+          <option value="20">20 questions</option>
+          <option value="15">15 questions</option>
+          <option value="10">10 questions</option>
+        </select>
+        <button class="btn primary" id="startBtn">Start test</button>
+      </div>
+      <div id="quizArea" style="display:none">
+        <div class="q-meta">
+          <span id="qProgress">Question 1 of 30</span>
+          <span id="qAnswered">0 answered</span>
+        </div>
+        <div class="bar" style="max-width:none;margin-bottom:16px"><i id="qBar"></i></div>
+        <div class="qcard">
+          <div class="qnum" id="qNum">Q1</div>
+          <div class="qtext" id="qText"></div>
+          <div class="opts" id="qOpts"></div>
+        </div>
+        <div class="nav">
+          <button class="btn" id="qPrev">← Back</button>
+          <button class="btn primary" id="qNext">Next →</button>
+        </div>
+        <div class="dots" id="qDots"></div>
+      </div>
+    </div>
+
+    <!-- results -->
+    <div id="quizResults" style="display:none"></div>
+  </section>
+
+  <footer>Built from your “Studying for Intro to Business Procedures” notes · works offline · nothing leaves this device</footer>
+</div>
+
+<script>
+/* ============ DATA ============ */
+const CARDS = [
+ // Communication & Documents
+ ["Comm/Docs","Memo (Memorandum)","A brief, INTERNAL document used to share information, updates, or directives within an organization. Contrast with letters, which are EXTERNAL."],
+ ["Comm/Docs","Block Format","Standard business letter format: all text left-aligned, single-spaced paragraphs, double space between paragraphs, no indentation."],
+ ["Comm/Docs","Letterhead","Professionally designed heading at the top of stationery featuring company name, logo, address, and contact details."],
+ ["Comm/Docs","Stationery","Branded writing materials and office supplies used for official communication and branding."],
+ ["Comm/Docs","Agenda","A list of topics or items to be discussed at a meeting, distributed to attendees beforehand."],
+ ["Comm/Docs","Minutes","The official written record of what was discussed and decided at a meeting (attendees, date, agenda, decisions, action items)."],
+ ["Comm/Docs","Internal Signature","Identifies the sender within the company WITHOUT the company name. Used for documents sent within the organization."],
+ ["Comm/Docs","Enclosure vs Copy Notation","Enclosure tells the reader extra documents are included; Copy notation tells them who else received the letter (like cc)."],
+ ["Comm/Docs","Business Letter 5 C's","Clear, Concise, Courteous, Complete, Correct."],
+ ["Comm/Docs","Colloquial Language","Informal words/phrases used in ordinary conversation. NOT appropriate for professional business writing."],
+ ["Comm/Docs","Second-Page Heading Rule","On page 2+ of a letter/memo, the heading must include the addressee name, page number, and date."],
+ ["Comm/Docs","Proofreading","Checking documents for accuracy in content, grammar, spelling, and punctuation — always the final step before distributing."],
+
+ // Mail
+ ["Mail","Express Mail","Fastest USPS service: overnight / 1-day delivery. Most expensive."],
+ ["Mail","Priority Mail","USPS service delivering in 1–3 business days. Middle ground between Express and First-Class."],
+ ["Mail","First-Class Mail","Standard mail for letters, bills, and correspondence. 1–5 business days, up to 13 oz."],
+ ["Mail","Parcel Post","USPS service for large, heavy, non-letter packages. 2–8 days. Cheapest for heavy items."],
+ ["Mail","Certified Mail","Provides proof of mailing and delivery confirmation (signature). Same speed as First-Class. Used for legal documents."],
+ ["Mail","Registered Mail","Maximum-security USPS service: tracked at every step and insured. For valuables."],
+ ["Mail","Mail Speed Ranking","Express (1 day) > Priority (1–3) > First-Class (1–5) > Parcel Post (2–8)."],
+
+ // Ownership
+ ["Ownership","Sole Proprietorship","Owned by one person. Easiest to start. Owner has UNLIMITED personal liability — personal and business assets are legally the same. Pass-through taxation."],
+ ["Ownership","Partnership","Owned by 2+ people. General partners have unlimited liability; limited partners are liable only up to their investment. Pass-through taxation."],
+ ["Ownership","LLC (Limited Liability Company)","Offers limited liability protection WITH pass-through taxation. Easier than a corporation, more protection than a partnership."],
+ ["Ownership","C Corporation","A separate legal entity from owners (shareholders). Strongest liability protection, can raise capital via stock, perpetual existence — but faces DOUBLE taxation."],
+ ["Ownership","S Corporation","A corporation structured to AVOID double taxation; profits/losses pass to personal income. Must file with the IRS and meet limits (≤100 shareholders, no non-resident aliens)."],
+ ["Ownership","Cooperative","Owned and operated for the benefit of its members (user-owners), who share profits. # of shares does NOT equal voting power."],
+ ["Ownership","Franchise","A contractual agreement to use the name and sell the products/services of a company in a designated geographic area."],
+ ["Ownership","Nonprofit / 501(c)(3)","Does public or religious work; cannot distribute profits to members or political campaigns. Must get tax-exempt status from the IRS."],
+ ["Ownership","Limited Liability","Owners are only liable up to the amount they invested. Protects personal assets."],
+ ["Ownership","DBA (Doing Business As)","A trade/fictitious name. Gives NO legal protection but may be legally required to operate under a name different from your legal name."],
+
+ // Finance & Accounting
+ ["Finance","Balance Sheet","A financial snapshot at a point in time: Assets = Liabilities + Owner's Equity."],
+ ["Finance","Net Income","Revenue minus ALL expenses — the 'bottom line.'"],
+ ["Finance","Gross Profit","Revenue minus Cost of Goods Sold."],
+ ["Finance","Accounts Payable","Money a company OWES to suppliers/vendors for goods received but not yet paid for. A liability."],
+ ["Finance","Accounts Receivable","Money OWED TO a company by its customers for credit sales. A current asset."],
+ ["Finance","Liabilities","Creditors' claims to the assets of a business — what the company owes."],
+ ["Finance","Owner's Equity","An owner's claim to the assets of a business. Assets minus Liabilities."],
+ ["Finance","Working Capital","Current Assets minus Current Liabilities. Measures short-term liquidity/health."],
+ ["Finance","Current Assets","Assets expected to be used or converted to cash within one year (cash, inventory, accounts receivable)."],
+ ["Finance","Fixed Assets","Long-term assets providing benefits for more than one year (building, land, machinery)."],
+ ["Finance","Petty Cash","A small fund kept on hand for minor incidental office expenses. Always documented with receipts."],
+ ["Finance","Imprest System","A FIXED petty cash fund that is replenished back to its original set amount after expenditures (start $200, spend $150, replenish $150)."],
+ ["Finance","Voucher","A document that authorizes payment to a vendor AFTER confirming goods/services were received."],
+ ["Finance","Three-Way Match","Matching three documents before authorizing vendor payment: (1) Purchase Order, (2) Receiving Report, (3) Vendor Invoice."],
+ ["Finance","Purchase Requisition","An INTERNAL document requesting permission to buy something — goes to purchasing for approval BEFORE a Purchase Order is issued."],
+ ["Finance","Bank Reconciliation","Comparing a company's book records with the bank's statement; adjusts for outstanding checks, deposits in transit, fees, and errors."],
+ ["Finance","Compound Interest","Interest calculated on your principal PLUS previously earned interest — interest is added to the balance, then the next period earns on the new total."],
+ ["Finance","GAAP","Generally Accepted Accounting Principles — the standard rules for financial reporting in the U.S."],
+ ["Finance","Journal (Accounting)","The first book of entry where daily transactions are recorded chronologically before posting to the ledger. Provides an audit trail."],
+ ["Finance","W-2 Form","The tax form an employer sends each employee and the IRS at year-end, reporting annual wages and taxes withheld."],
+
+ // Management & Leadership
+ ["Management","4 Functions of Management (POLC)","Planning, Organizing, Leading/Directing, Controlling."],
+ ["Management","3 Levels of Management","Executive/Top (CEO — vision/strategy), Middle (department heads — implement strategy), Line/Supervisory (team leads — day-to-day)."],
+ ["Management","Line Authority","Direct chain of command — a manager's direct authority over subordinates."],
+ ["Management","Staff Authority","Advisory authority only — provides expertise/recommendations, no direct command."],
+ ["Management","Functional Authority","A specialist's authority across departments for a specific function."],
+ ["Management","Laissez-Faire Leadership","'Hands-off' style — the leader gives team members freedom with minimal direction. Best with skilled, self-motivated teams."],
+ ["Management","Autocratic Leadership","The leader makes decisions alone without consulting subordinates."],
+ ["Management","Democratic Leadership","The leader collaborates and seeks team input before deciding."],
+ ["Management","Transformational Leadership","Focuses on inspiring and motivating employees to innovate and exceed expectations."],
+ ["Management","Servant Leadership","Focuses on the growth, needs, and well-being of team members, often over the leader's own."],
+ ["Management","SWOT Analysis","Strengths, Weaknesses, Opportunities, Threats — a strategic planning tool for evaluating an organization's position."],
+ ["Management","Eisenhower Matrix","Prioritizes tasks in 4 quadrants: Do First (urgent+important), Schedule (important, not urgent), Delegate (urgent, not important), Eliminate (neither)."],
+ ["Management","SMART Goals","Specific, Measurable, Achievable, Relevant, Time-bound."],
+ ["Management","Organizational Chart","A visual hierarchy showing reporting relationships. Solid lines = direct authority; dashed lines = functional/secondary relationships."],
+ ["Management","Vision vs Mission","Vision = future aspiration ('what we want to become'). Mission = present purpose ('what we do and how')."],
+ ["Management","Operations Management","Overseeing day-to-day processes (shipping, manufacturing, quality) to keep them running smoothly."],
+ ["Management","Quorum","The minimum number of people that must be present to conduct business at a meeting."],
+ ["Management","Pareto Principle (80/20)","Roughly 80% of results come from 20% of the tasks — tackle that vital 20% first."],
+
+ // Economics
+ ["Economics","Capitalism","An economic system where private individuals own and operate the majority of businesses."],
+ ["Economics","Socialism","An economic system where the government owns the means of production."],
+ ["Economics","Communism","An economic system where the factors of production are owned and directed by the state."],
+ ["Economics","Microeconomics","The study of individual and business-level economic decisions."],
+ ["Economics","Macroeconomics","The study of how the whole/aggregate economy behaves: inflation, GDP, price levels, unemployment."],
+ ["Economics","GDP","Gross Domestic Product — the total market value of all goods and services produced within a country in a given period."],
+ ["Economics","Scarcity","The fundamental economic problem: unlimited wants vs. limited resources."],
+ ["Economics","Factors of Production","Land, Labor, and Capital."],
+ ["Economics","Cartel vs Trust","A cartel is companies COLLUDING while keeping autonomy (easy to leave). A trust is companies MERGING under trustees (hard to leave)."],
+ ["Economics","Antitrust Laws","Laws that promote competition and prevent monopolies. Enforced by the FTC."],
+ ["Economics","FTC","Federal Trade Commission — enforces antitrust laws, handles consumer complaints, promotes competition."],
+ ["Economics","Business Cycle Stages","Expansion → Peak/Boom → Contraction/Recession → Trough/Depression, then repeats."],
+
+ // Technology & Info Processing
+ ["Technology","Modem vs Router","A modem connects the home/office TO the internet (via an ISP). A router connects devices WITHIN the local network (LAN)."],
+ ["Technology","Operating System (OS)","Software that controls computer operations, maintains files, runs applications, and manages hardware devices."],
+ ["Technology","Hardware vs Software","Hardware = physical components (monitor, printer, motherboard). Software = the programs and operating information."],
+ ["Technology","Server","A computer that stores data and application software for all workstations in a building or network."],
+ ["Technology","Intranet","An organization's internal communications network for employees only — not public."],
+ ["Technology","OCR","Optical Character Recognition — turns scanned PDFs and images into editable text."],
+ ["Technology","Primary Key","A unique identifier for each record in a database table (e.g., Customer ID). Cannot be null; no duplicates."],
+ ["Technology","Foreign Key","A field that links tables together. CAN be null and there can be multiple."],
+ ["Technology","Relational Database","A database that understands relationships between lists/tables, connected by keys."],
+ ["Technology","PDF","Portable Document Format — preserves layout and embedded fonts across ALL devices. Best for a final, fixed-layout document."],
+ ["Technology","Information Processing Cycle","Input → Processing → Output → Storage."],
+ ["Technology","Batch vs Real-Time Processing","Batch = grouped data processed at intervals (monthly payroll). Real-time = processed instantly as it occurs (e-commerce inventory)."],
+ ["Technology","Data Mining","Extracting and finding significant patterns in large datasets using software."],
+ ["Technology","SELECT Query","Retrieves data without changing it — the most common query. Components: SELECT, FROM, WHERE, ORDER BY."],
+
+ // Filing & Records
+ ["Records","Tickler File","A date-based reminder system using 31 daily folders + 12 monthly folders to 'tickle' your memory about upcoming deadlines."],
+ ["Records","Retention Schedule","A schedule showing how long types of records must be kept before destruction. Default to the longest applicable period; stop destroying during a legal hold."],
+ ["Records","Records Lifecycle","Creation → Maintenance/Use → Disposition (destruction or archive)."],
+ ["Records","ARMA Filing Rules","Index unit-by-unit; case doesn't matter; 'nothing comes before something'; remove punctuation; numbers file before letters; file last name first."],
+ ["Records","Chronological Filing","Files stored by date. Using YYYY-MM-DD naming makes them sort automatically."],
+ ["Records","5 Steps of Filing","Inspecting → Indexing → Coding → Sorting → Storing."],
+ ["Records","Microfiche","A microfilm storage medium with tiny photographic images of documents on small sheets of film — old-school archival tech."],
+ ["Records","3-2-1 Rule","For record storage: 3 copies, 2 different formats, 1 offsite."],
+
+ // Ethics, Safety, Law, Career
+ ["Ethics/Law","Sarbanes-Oxley Act (SOX)","A 2002 federal law requiring CEOs/CFOs to approve financial statements (criminally liable), mandating annual audits, and protecting whistleblowers. Goal: protect investors."],
+ ["Ethics/Law","ADA","Americans with Disabilities Act — employers (15+ employees) must provide accommodations and equal opportunity; public places/services must be accessible."],
+ ["Ethics/Law","FLSA","Fair Labor Standards Act — mandates 1.5× overtime pay, recordkeeping, federal minimum wage, and child-labor restrictions. Enforced by the Dept. of Labor."],
+ ["Ethics/Law","EEOC","Equal Employment Opportunity Commission — prohibits employment discrimination based on age, gender, race, national origin, etc."],
+ ["Ethics/Law","HIPAA","Protects specific health information from being disclosed without patient consent."],
+ ["Ethics/Law","Ergonomics","The study of designing workstations/equipment to minimize strain and injury. Monitor at eye level, feet flat, wrists neutral, lower back supported."],
+ ["Ethics/Law","Confidentiality","Protecting sensitive information from unauthorized access — lock screens, secure documents, follow privacy policies."],
+ ["Ethics/Law","Least Privilege","Granting access to information only up to what is necessary for someone's role."],
+ ["Ethics/Law","EULA","End-User License Agreement — a legally ENFORCEABLE contract between software publisher and user, not just a suggestion."],
+ ["Ethics/Law","Copyright","The exclusive legal right given to creators over their own original works."],
+ ["Ethics/Law","Social Security Act","Provides benefits for the elderly, blind, disabled, and unemployed. Funded by worker/employer taxes."],
+ ["Ethics/Law","Unemployment Insurance (UI)","Benefits for workers laid off involuntarily for reasons out of their control. Funded by employer taxes. Different from severance (paid by the company)."],
+ ["Career","Elevator Pitch","A 30–60 second concise, persuasive overview designed to generate interest in a person, idea, or product."],
+ ["Career","Follow-Up Letter","Sent after a job interview to thank the interviewer — a standard professional practice."],
+ ["Career","SPOC","Single Point of Contact — a designated person responsible for all communications on a specific client, project, or task."],
+ ["Career","Micro-credentials","Short, stackable programs teaching specific skills (e.g., Coursera), usually awarding a digital badge/certificate."],
+];
+
+const QUESTIONS = [
+ {q:"What is the key difference between a memo and a letter?",
+  opts:["A memo is internal; a letter is external","A memo is external; a letter is internal","A memo is handwritten; a letter is typed","There is no difference"],
+  a:0, why:"Memos = INTERNAL communication within an organization. Letters = EXTERNAL communication."},
+ {q:"In block format, how are all the lines aligned?",
+  opts:["Centered","Right-aligned","Left-aligned (flush left)","Indented first line"],
+  a:2, why:"Block format = all text left-aligned, single-spaced paragraphs, double space between them, no indentation."},
+ {q:"Which mail service is the FASTEST?",
+  opts:["First-Class Mail","Priority Mail","Express Mail","Parcel Post"],
+  a:2, why:"Speed ranking: Express (1 day) > Priority (1–3) > First-Class (1–5) > Parcel Post (2–8)."},
+ {q:"You need to send a large, heavy, non-letter package as cheaply as possible. Which USPS service fits best?",
+  opts:["Express Mail","Parcel Post","Certified Mail","Registered Mail"],
+  a:1, why:"Parcel Post is for large, heavy, non-letter packages — the cheapest option for heavy items (2–8 days)."},
+ {q:"A small business wants LIMITED LIABILITY with PASS-THROUGH taxation. Which structure fits best?",
+  opts:["Sole Proprietorship","General Partnership","LLC","C Corporation"],
+  a:2, why:"An LLC gives limited liability protection while passing profits/losses through to owners' personal taxes."},
+ {q:"Which statement is TRUE of a sole proprietorship?",
+  opts:["It is a separate legal entity from its owner","The owner has unlimited personal liability","It can easily sell stock to raise capital","It faces double taxation"],
+  a:1, why:"In a sole proprietorship the owner and business are legally one and the same — unlimited personal liability."},
+ {q:"What is the main drawback of a C Corporation?",
+  opts:["Unlimited personal liability","It cannot raise capital","Double taxation","Owner and business assets are the same"],
+  a:2, why:"A C Corp pays corporate income tax, then shareholders pay tax on dividends — double taxation. An S Corp avoids this."},
+ {q:"The balance sheet equation is:",
+  opts:["Assets = Liabilities + Owner's Equity","Assets = Revenue − Expenses","Revenue = Assets + Liabilities","Net Income = Assets − Equity"],
+  a:0, why:"Assets = Liabilities + Owner's Equity — the balance sheet always balances."},
+ {q:"Net Income is calculated as:",
+  opts:["Revenue − Cost of Goods Sold","Revenue − All Expenses","Assets − Liabilities","Current Assets − Current Liabilities"],
+  a:1, why:"Net Income = Revenue − ALL Expenses (the bottom line). Revenue − COGS is Gross Profit."},
+ {q:"Which three documents make up a 'three-way match' before paying a vendor?",
+  opts:["Invoice, receipt, check","Purchase Order, Receiving Report, Vendor Invoice","Budget, ledger, journal","Requisition, voucher, W-2"],
+  a:1, why:"Three-way match = Purchase Order + Receiving Report + Vendor Invoice, all confirmed before authorizing payment."},
+ {q:"A petty cash reconciliation shows receipts are short by $7. What is the correct action?",
+  opts:["Ignore it since it's small","Record the $7 as a shortage (cash short/over) and replenish the fund","Take $7 from your own wallet quietly","Close the petty cash fund permanently"],
+  a:1, why:"Mark the overage/shortage at period end, then replenish the imprest fund back to its original amount — keep the paper trail."},
+ {q:"In an imprest petty cash system, after you spend money the fund is:",
+  opts:["Left at the lower balance","Replenished back to its original fixed amount","Doubled for next month","Converted to a checking account"],
+  a:1, why:"An imprest system keeps a FIXED amount — you replenish exactly what was spent to return to the original total."},
+ {q:"What does a router do (vs. a modem)?",
+  opts:["Connects your home to the internet via an ISP","Connects devices within a local network (LAN)","Stores backup files","Scans documents into text"],
+  a:1, why:"A router connects devices to each other within a LAN; a MODEM connects the home/office to the internet via an ISP."},
+ {q:"In a database table, a primary key must:",
+  opts:["Be unique and cannot be null","Always be null","Link to many other tables","Contain only text"],
+  a:0, why:"A primary key uniquely identifies each record — it cannot be null and has no duplicates. Foreign keys link tables and can be null."},
+ {q:"Which file format best preserves layout and fonts across all devices?",
+  opts:[".TXT",".DOCX",".PDF",".CSV"],
+  a:2, why:"PDF preserves layout and embeds fonts so it looks identical everywhere — best for a final, fixed document."},
+ {q:"Your printer shows repeated paper jams. What is the FIRST troubleshooting step?",
+  opts:["Replace every internal module preemptively","Clear the paper path (and remove any torn scraps)","Buy a new printer","Call the manufacturer for a refund"],
+  a:1, why:"Start with the least invasive fix: clear the paper path first; torn scraps under rollers can trigger false jam sensors."},
+ {q:"Which statement about EULAs (End-User License Agreements) is most accurate?",
+  opts:["They are suggestions, not enforceable","They are legally enforceable contracts","They only apply to free software","They expire after one use"],
+  a:1, why:"A EULA is a legally enforceable contract between the software publisher and the user — not just a suggestion."},
+ {q:"Which best describes a tickler file?",
+  opts:["A list of employee complaints","A date-based reminder system (31 daily + 12 monthly folders)","A backup of the company server","A type of business letter"],
+  a:1, why:"A tickler file uses 31 daily + 12 monthly folders to 'tickle' your memory about upcoming deadlines."},
+ {q:"When purging records, what should you do FIRST?",
+  opts:["Shred everything immediately","Check the retention schedule and confirm no legal hold applies","Email customers for permission","Archive everything to the cloud"],
+  a:1, why:"Always verify the retention schedule and that no litigation/legal hold applies before destroying any records."},
+ {q:"When a custom policy says keep records 3 years but the default schedule says 7 years, you keep them for:",
+  opts:["3 years","7 years (the longest applicable period)","5 years (the average)","Forever"],
+  a:1, why:"Default to the LONGEST applicable retention period — so 7 years here."},
+ {q:"Confidentiality in an office primarily means:",
+  opts:["Sharing information freely with coworkers","Protecting sensitive information from unauthorized access","Keeping the office quiet","Backing up files daily"],
+  a:1, why:"Confidentiality = protecting sensitive information from unauthorized access (lock screens, secure docs, follow privacy policy)."},
+ {q:"The 4 functions of management (POLC) are:",
+  opts:["Plan, Order, Lead, Calculate","Planning, Organizing, Leading, Controlling","Produce, Operate, Launch, Close","People, Operations, Logistics, Capital"],
+  a:1, why:"POLC = Planning, Organizing, Leading/Directing, Controlling."},
+ {q:"A 'hands-off' leader who gives skilled employees autonomy with minimal supervision uses which style?",
+  opts:["Autocratic","Democratic","Laissez-faire","Transactional"],
+  a:2, why:"Laissez-faire (delegative) leadership is hands-off — best with highly skilled, self-motivated teams."},
+ {q:"On an organizational chart, a DASHED line usually represents:",
+  opts:["The CEO","A direct chain of command","A functional/secondary reporting relationship","An empty position"],
+  a:2, why:"Solid lines = direct-line authority; dashed lines = functional or secondary relationships (e.g., matrix structures)."},
+ {q:"Sarbanes-Oxley (SOX) primarily aims to:",
+  opts:["Protect investors through corporate financial accountability","Set the federal minimum wage","Protect employees with disabilities","Regulate the mail system"],
+  a:0, why:"SOX requires CEOs/CFOs to approve financials, mandates audits, and protects whistleblowers — all to protect investors."},
+ {q:"The ADA requires employers to provide accommodations when they have at least how many employees?",
+  opts:["5","10","15","50"],
+  a:2, why:"The ADA generally applies to employers with 15 or more employees."},
+ {q:"What does ergonomics fix in a workstation showing wrist pain, a low monitor, and dangling feet?",
+  opts:["Raise the monitor to eye level, support wrists neutral, get feet flat on the floor","Buy a faster computer","Lower the lighting","Add a second monitor"],
+  a:0, why:"Ergonomics: monitor top at/just below eye level, wrists in line with forearms, feet flat — everything supported and straight."},
+ {q:"What is the FIRST step when handling a difficult/upset customer?",
+  opts:["Offer a refund immediately","Paraphrase their concern to confirm understanding (active listening)","Transfer them to a manager","End the call politely"],
+  a:1, why:"Active listening first — paraphrase the customer's concern to confirm you understand before solving."},
+ {q:"Which document authorizes payment to a vendor AFTER confirming goods/services were received?",
+  opts:["Purchase requisition","Voucher","Agenda","Journal entry"],
+  a:1, why:"A voucher authorizes payment to a vendor once goods/services are confirmed received."},
+ {q:"Cartels and trusts both create monopoly power. How do they differ?",
+  opts:["A cartel merges companies; a trust keeps them separate","In a cartel companies keep autonomy and can leave easily; a trust merges them under trustees and is hard to leave","They are the same thing","A trust is legal; a cartel is always illegal"],
+  a:1, why:"Cartel = colluding but autonomous companies (easy to leave). Trust = companies merged under trustees (hard to leave)."},
+];
+
+/* ============ FLASHCARDS LOGIC ============ */
+const $ = s=>document.querySelector(s);
+const $$ = s=>document.querySelectorAll(s);
+let deck=[], idx=0, flipped=false, starred=new Set(), starredOnly=false;
+
+function buildCatFilter(){
+  const cats=[...new Set(CARDS.map(c=>c[0]))];
+  const sel=$('#catFilter');
+  sel.innerHTML='<option value="__all">All categories ('+CARDS.length+')</option>'+
+    cats.map(c=>{const n=CARDS.filter(x=>x[0]===c).length;return `<option value="${c}">${c} (${n})</option>`}).join('');
+}
+function currentSource(){
+  let src=CARDS.map((c,i)=>({cat:c[0],term:c[1],def:c[2],id:i}));
+  const cat=$('#catFilter').value;
+  if(cat&&cat!=='__all') src=src.filter(c=>c.cat===cat);
+  if(starredOnly) src=src.filter(c=>starred.has(c.id));
+  return src;
+}
+function loadDeck(shuffle){
+  deck=currentSource();
+  if(shuffle){for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}}
+  idx=0; render();
+}
+function render(){
+  const inner=$('#fcInner');
+  flipped=false; inner.classList.remove('flipped');
+  if(deck.length===0){
+    $('#fcCat').textContent=''; $('#fcTerm').textContent='No cards here';
+    $('#fcTermBack').textContent=''; $('#fcDef').textContent='Try removing the “Starred only” filter or pick another category.';
+    $('#cardCount').textContent='0 / 0'; $('#cardBar').style.width='0%';
+    updateStarUI(); return;
+  }
+  if(idx>=deck.length) idx=deck.length-1;
+  const c=deck[idx];
+  $('#fcCat').textContent=c.cat;
+  $('#fcTerm').textContent=c.term;
+  $('#fcTermBack').textContent=c.term;
+  $('#fcDef').textContent=c.def;
+  $('#cardCount').textContent=(idx+1)+' / '+deck.length;
+  $('#cardBar').style.width=((idx+1)/deck.length*100)+'%';
+  updateStarUI();
+}
+function updateStarUI(){
+  $('#starCount').textContent=starred.size+' ⭐';
+  const c=deck[idx];
+  const btn=$('#starCard');
+  if(c&&starred.has(c.id)){btn.innerHTML='<span class="star">★</span> Starred';}
+  else{btn.innerHTML='<span class="star">☆</span> Star';}
+}
+$('#fcInner').addEventListener('click',()=>{flipped=!flipped;$('#fcInner').classList.toggle('flipped',flipped);});
+$('#nextCard').onclick=()=>{if(idx<deck.length-1){idx++;render();}};
+$('#prevCard').onclick=()=>{if(idx>0){idx--;render();}};
+$('#starCard').onclick=(e)=>{e.stopPropagation();const c=deck[idx];if(!c)return;
+  if(starred.has(c.id))starred.delete(c.id);else starred.add(c.id);updateStarUI();};
+$('#shuffleBtn').onclick=()=>loadDeck(true);
+$('#catFilter').onchange=()=>loadDeck(false);
+$('#starredBtn').onclick=function(){starredOnly=!starredOnly;
+  this.classList.toggle('active'); this.style.background=starredOnly?'linear-gradient(90deg,var(--accent),var(--accent2))':'';
+  this.style.color=starredOnly?'#fff':''; loadDeck(false);};
+$('#resetCards').onclick=()=>{starred.clear();starredOnly=false;
+  const b=$('#starredBtn');b.style.background='';b.style.color='';$('#catFilter').value='__all';loadDeck(false);};
+
+document.addEventListener('keydown',e=>{
+  if(!$('#view-cards').classList.contains('active'))return;
+  if(e.key==='ArrowRight')$('#nextCard').click();
+  else if(e.key==='ArrowLeft')$('#prevCard').click();
+  else if(e.key===' '){e.preventDefault();$('#fcInner').click();}
+  else if(e.key==='ArrowUp'){e.preventDefault();$('#starCard').click();}
+});
+
+/* ============ TABS ============ */
+$$('.tab').forEach(t=>t.onclick=()=>{
+  $$('.tab').forEach(x=>x.classList.remove('active'));
+  $$('.view').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  $('#view-'+t.dataset.view).classList.add('active');
+});
+
+/* ============ TEST LOGIC ============ */
+let quiz=[], qi=0, answers=[];
+function shuffleArr(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+$('#startBtn').onclick=()=>{
+  const n=parseInt($('#qCountSel').value,10);
+  let pool=shuffleArr(QUESTIONS).slice(0,n);
+  // shuffle options within each question, track correct index
+  quiz=pool.map(item=>{
+    const correctText=item.opts[item.a];
+    const opts=shuffleArr(item.opts);
+    return {q:item.q, opts, a:opts.indexOf(correctText), why:item.why};
+  });
+  answers=new Array(quiz.length).fill(null);
+  qi=0;
+  $('#quizArea').style.display='block';
+  $('#quizResults').style.display='none';
+  $('.controls',$('#quizRun')); // noop
+  $('#startBtn').textContent='Restart test';
+  buildDots(); renderQ();
+};
+
+function buildDots(){
+  const d=$('#qDots'); d.innerHTML='';
+  quiz.forEach((_,i)=>{const b=document.createElement('button');b.className='dot';b.onclick=()=>{qi=i;renderQ();};d.appendChild(b);});
+}
+function updateDots(){
+  $$('#qDots .dot').forEach((b,i)=>{
+    b.classList.toggle('answered',answers[i]!==null);
+    b.classList.toggle('current',i===qi);
+  });
+}
+function renderQ(){
+  const item=quiz[qi];
+  $('#qProgress').textContent='Question '+(qi+1)+' of '+quiz.length;
+  $('#qAnswered').textContent=answers.filter(a=>a!==null).length+' answered';
+  $('#qBar').style.width=((qi+1)/quiz.length*100)+'%';
+  $('#qNum').textContent='Q'+(qi+1);
+  $('#qText').textContent=item.q;
+  const wrap=$('#qOpts'); wrap.innerHTML='';
+  const keys=['A','B','C','D','E'];
+  item.opts.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt'+(answers[qi]===i?' selected':'');
+    b.innerHTML='<span class="key">'+keys[i]+'</span><span>'+o+'</span>';
+    b.onclick=()=>{answers[qi]=i;renderQ();};
+    wrap.appendChild(b);
+  });
+  $('#qPrev').disabled=(qi===0);
+  $('#qNext').textContent=(qi===quiz.length-1)?'Finish ✓':'Next →';
+  $('#qNext').classList.toggle('primary',true);
+  updateDots();
+}
+$('#qPrev').onclick=()=>{if(qi>0){qi--;renderQ();}};
+$('#qNext').onclick=()=>{
+  if(qi<quiz.length-1){qi++;renderQ();return;}
+  // finishing
+  const unanswered=answers.filter(a=>a===null).length;
+  if(unanswered>0 && !confirm(unanswered+' question(s) are unanswered and will be marked wrong. Submit anyway?'))return;
+  showResults();
+};
+
+function gradeText(p){
+  if(p>=90)return['A','Outstanding — you know this material cold. 🎯'];
+  if(p>=80)return['B','Strong work. Drill the misses and you’re solid. 💪'];
+  if(p>=70)return['C','Passing — review the missed cards and retake. 📚'];
+  if(p>=60)return['D','Getting there. Star the misses and run flashcards. 🔁'];
+  return['F','Early days — work the flashcards, then come back. 🌱'];
+}
+function showResults(){
+  let correct=0;
+  quiz.forEach((item,i)=>{if(answers[i]===item.a)correct++;});
+  const total=quiz.length;
+  const pct=Math.round(correct/total*100);
+  const [g,msg]=gradeText(pct);
+  const misses=quiz.map((item,i)=>({item,i})).filter(x=>answers[x.i]!==x.item.a);
+
+  const keys=['A','B','C','D','E'];
+  let html='';
+  html+='<div class="score-hero">';
+  html+='<div class="ring" style="--p:'+pct+'"><div><span class="pct">'+pct+'%</span><span class="frac">'+correct+' / '+total+' correct</span></div></div>';
+  html+='<div class="grade">Grade: '+g+'</div>';
+  html+='<p class="msg">'+msg+'</p>';
+  html+='<div class="score-actions">';
+  html+='<button class="btn primary" id="retakeBtn">↻ Retake test</button>';
+  if(misses.length)html+='<button class="btn" id="studyMissBtn">⭐ Star &amp; study the '+misses.length+' missed</button>';
+  html+='</div></div>';
+
+  // Missed section
+  html+='<div class="review-h">'+(misses.length?('❌ Missed ('+misses.length+')'):'✅ Perfect score — nothing missed!')+'</div>';
+  misses.forEach(({item,i})=>{
+    const you=answers[i]===null?'<i>(left blank)</i>':keys[answers[i]]+'. '+item.opts[answers[i]];
+    html+='<div class="rev miss">';
+    html+='<div class="rq">Q'+(i+1)+'. '+item.q+'</div>';
+    html+='<div class="line"><span class="tag you">Your answer:</span><span>'+you+'</span></div>';
+    html+='<div class="line"><span class="tag ans">Correct:</span><span>'+keys[item.a]+'. '+item.opts[item.a]+'</span></div>';
+    html+='<div class="why">💡 '+item.why+'</div>';
+    html+='</div>';
+  });
+
+  // Correct section (collapsed feel — just listed)
+  const hits=quiz.map((item,i)=>({item,i})).filter(x=>answers[x.i]===x.item.a);
+  if(hits.length){
+    html+='<div class="review-h">✅ Correct ('+hits.length+')</div>';
+    hits.forEach(({item,i})=>{
+      html+='<div class="rev hit">';
+      html+='<div class="rq">Q'+(i+1)+'. '+item.q+'</div>';
+      html+='<div class="line"><span class="tag ans">Answer:</span><span>'+keys[item.a]+'. '+item.opts[item.a]+'</span></div>';
+      html+='</div>';
+    });
+  }
+
+  const box=$('#quizResults');
+  box.innerHTML=html;
+  $('#quizArea').style.display='none';
+  box.style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  $('#retakeBtn').onclick=()=>$('#startBtn').click();
+  const sm=$('#studyMissBtn');
+  if(sm)sm.onclick=()=>{
+    // map missed questions back to related flashcards is hard; instead star nothing automatic.
+    // Switch to flashcards and inform user.
+    quiz.forEach((item,i)=>{}); // placeholder
+    document.querySelector('.tab[data-view="cards"]').click();
+    alert('Switched to Flashcards. Use the category filter to drill the topics you missed, then ⭐ star tough cards.');
+  };
+}
+
+/* init */
+buildCatFilter();
+loadDeck(false);
+</script>
+</body>
+</html>
