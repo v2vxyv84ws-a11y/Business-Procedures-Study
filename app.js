@@ -56,15 +56,48 @@ function updateStarUI(){
 $('#fcInner').addEventListener('click',()=>{flipped=!flipped;$('#fcInner').classList.toggle('flipped',flipped);});
 $('#nextCard').onclick=()=>{if(idx<deck.length-1){idx++;render();}};
 $('#prevCard').onclick=()=>{if(idx>0){idx--;render();}};
+function flashHint(msg){
+  let t=$('#toast');
+  if(!t){t=document.createElement('div');t.id='toast';document.body.appendChild(t);}
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(flashHint._t); flashHint._t=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function setStarredBtn(on){
+  const b=$('#starredBtn');
+  b.classList.toggle('active',on);
+  b.style.background=on?'linear-gradient(90deg,var(--accent),var(--accent2))':'';
+  b.style.color=on?'#fff':'';
+}
 $('#starCard').onclick=(e)=>{e.stopPropagation();const c=deck[idx];if(!c)return;
-  if(starred.has(c.id))starred.delete(c.id);else starred.add(c.id);updateStarUI();};
+  const wasStarred=starred.has(c.id);
+  if(wasStarred)starred.delete(c.id);else starred.add(c.id);
+  if(starredOnly && wasStarred){
+    // just un-starred while filtering to starred — drop it from the view
+    deck=currentSource();
+    if(deck.length===0){ starredOnly=false; setStarredBtn(false); loadDeck(false); flashHint('No starred cards left — showing all.'); return; }
+    if(idx>=deck.length) idx=deck.length-1;
+    render();
+  } else { updateStarUI(); }
+};
 $('#shuffleBtn').onclick=()=>loadDeck(true);
 $('#catFilter').onchange=()=>loadDeck(false);
-$('#starredBtn').onclick=function(){starredOnly=!starredOnly;
-  this.classList.toggle('active'); this.style.background=starredOnly?'linear-gradient(90deg,var(--accent),var(--accent2))':'';
-  this.style.color=starredOnly?'#fff':''; loadDeck(false);};
+$('#starredBtn').onclick=function(){
+  if(!starredOnly){
+    // about to turn ON — make sure there's actually something starred to show
+    starredOnly=true; const n=currentSource().length; starredOnly=false;
+    if(n===0){
+      flashHint(starred.size===0
+        ? '⭐ Star a few cards first (press “Star”), then filter to just those.'
+        : '⭐ No starred cards in this category — switch to “All categories.”');
+      return;
+    }
+  }
+  starredOnly=!starredOnly;
+  setStarredBtn(starredOnly);
+  loadDeck(false);
+};
 $('#resetCards').onclick=()=>{starred.clear();starredOnly=false;
-  const b=$('#starredBtn');b.style.background='';b.style.color='';$('#catFilter').value='__all';loadDeck(false);};
+  setStarredBtn(false);$('#catFilter').value='__all';loadDeck(false);};
 
 document.addEventListener('keydown',e=>{
   if(!$('#view-cards').classList.contains('active'))return;

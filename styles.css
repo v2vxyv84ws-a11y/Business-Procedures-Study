@@ -162,3 +162,10 @@
   .sheet-links{max-width:660px;margin:12px auto 0;text-align:center;font-size:13px;color:var(--muted)}
   .sheet-links a{color:var(--accent);font-weight:700;text-decoration:none}
   .sheet-links a:hover{text-decoration:underline}
+
+  /* transient hint toast (e.g., starred-only with nothing starred) */
+  #toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(12px);
+    background:var(--card2);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow);
+    padding:12px 18px;border-radius:12px;font-size:14px;font-weight:600;max-width:90%;text-align:center;
+    opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:60}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
