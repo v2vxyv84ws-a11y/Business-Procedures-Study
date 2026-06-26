@@ -126,6 +126,9 @@
 
   .empty{text-align:center;color:var(--muted);padding:40px}
   footer{text-align:center;color:var(--muted);font-size:12px;margin-top:40px}
+  footer .version{margin-top:8px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:11px;letter-spacing:.04em;color:var(--muted);opacity:.8;
+    display:inline-block;padding:4px 12px;border:1px solid var(--line);border-radius:999px;background:var(--bg2)}
   @media(max-width:560px){
     .face{padding:26px}.front .term{font-size:23px}.qtext{font-size:16px}
     header.top h1{font-size:21px}
@@ -218,7 +221,10 @@
     <div id="quizResults" style="display:none"></div>
   </section>
 
-  <footer>Built from your “Studying for Intro to Business Procedures” notes · works offline · nothing leaves this device</footer>
+  <footer>
+    Built from your “Studying for Intro to Business Procedures” notes · works offline · nothing leaves this device
+    <div class="version">v1.2 · build 2026-06-26 11:01 PDT</div>
+  </footer>
 </div>
 
 <script>
