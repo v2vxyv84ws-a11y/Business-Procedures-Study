@@ -169,3 +169,23 @@
     padding:12px 18px;border-radius:12px;font-size:14px;font-weight:600;max-width:90%;text-align:center;
     opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:60}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* changelog page + "what's new" footer link */
+  .changelog-link{display:inline-block;margin-top:8px;color:var(--accent);text-decoration:none;
+    font-size:12px;font-weight:700}
+  .changelog-link:hover{text-decoration:underline}
+  .cl-entry{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:18px 20px;margin-bottom:14px;box-shadow:0 4px 18px rgba(0,0,0,.25)}
+  .cl-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+  .cl-ver{font-size:20px;font-weight:800}
+  .cl-ver .em{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .cl-date{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+  .cl-current{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+    color:#fff;background:linear-gradient(90deg,var(--accent),var(--accent2));padding:2px 8px;border-radius:999px}
+  .cl-list{list-style:none;margin:0;padding:0}
+  .cl-list li{display:flex;gap:10px;align-items:flex-start;font-size:14px;margin:7px 0;line-height:1.45}
+  .cl-tag{flex:none;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+    padding:2px 8px;border-radius:6px;margin-top:2px;min-width:54px;text-align:center}
+  .cl-tag.added{background:rgba(52,211,153,.16);color:#34d399;border:1px solid #2c6b53}
+  .cl-tag.fixed{background:rgba(251,113,133,.14);color:#fb7185;border:1px solid #7a3a44}
+  .cl-tag.changed{background:rgba(91,140,255,.14);color:#8fb0ff;border:1px solid #3a4a78}
